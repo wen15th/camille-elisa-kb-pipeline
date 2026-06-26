@@ -1,0 +1,35 @@
+name: Clean Shopify Products
+
+on:
+  workflow_dispatch:       # manual trigger from the GitHub Actions UI
+    inputs:
+      csv_filename:
+        description: "CSV filename inside the input/ folder (e.g. products_export_1.csv)"
+        required: true
+        type: string
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run cleaning script
+        run: python clean_shopify_products.py "input/${{ github.event.inputs.csv_filename }}"
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: products-output
+          path: output/
+          retention-days: 30
